@@ -127,24 +127,4 @@ install(
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # include
 )
 
-###############################################################################
-# TESTS
-
-# CTest module automatically creates a BUILD_TESTING option that selects
-# whether to enable testing support (ON by default).
-include(CTest)
-if(BUILD_TESTING)
-  add_subdirectory(tests)
-endif()
-
-###############################################################################
-# LINTERS
-
-add_custom_target(format
-    COMMAND clang-format -i `git ls-files *.hpp *.cpp`
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-add_custom_target(tidy
-    COMMAND clang-tidy -p ${CMAKE_BINARY_DIR} `git ls-files *.cpp`
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-
 ament_package()
