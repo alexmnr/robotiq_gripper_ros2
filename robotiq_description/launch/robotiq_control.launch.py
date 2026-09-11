@@ -26,16 +26,16 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+import os
 import launch
+from launch.conditions import IfCondition
 from launch.substitutions import (
     Command,
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
 )
-from launch.conditions import IfCondition
 import launch_ros
-import os
 
 
 def generate_launch_description():
@@ -50,6 +50,13 @@ def generate_launch_description():
     )
 
     args = []
+    args.append(
+        launch.actions.DeclareLaunchArgument(
+            name="ns",
+            default_value="",
+            description="Namespace for all nodes",
+        )
+    )
     args.append(
         launch.actions.DeclareLaunchArgument(
             name="model",
@@ -71,11 +78,20 @@ def generate_launch_description():
     )
     args.append(
         launch.actions.DeclareLaunchArgument(
+            name="use_fake_hardware",
+            default_value="false",
+            description="Start robot with fake hardware (mock components)",
+        )
+    )
+    args.append(
+        launch.actions.DeclareLaunchArgument(
             name="com_port",
             default_value="/dev/ttyUSB0",
             description="Port for communicating with Robotiq hardware",
         )
     )
+
+    ns = LaunchConfiguration("ns")
 
     robot_description_content = Command(
         [
@@ -83,7 +99,8 @@ def generate_launch_description():
             " ",
             LaunchConfiguration("model"),
             " ",
-            "use_fake_hardware:=false",
+            "use_fake_hardware:=",
+            LaunchConfiguration("use_fake_hardware"),
             " ",
             "com_port:=",
             LaunchConfiguration("com_port"),
@@ -112,6 +129,7 @@ def generate_launch_description():
     control_node = launch_ros.actions.Node(
         package="controller_manager",
         executable="ros2_control_node",
+        namespace=ns,
         parameters=[
             robot_description_param,
             update_rate_config_file,
@@ -122,6 +140,7 @@ def generate_launch_description():
     robot_state_publisher_node = launch_ros.actions.Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
+        namespace=ns,
         parameters=[robot_description_param],
     )
 
@@ -129,6 +148,7 @@ def generate_launch_description():
         package="rviz2",
         executable="rviz2",
         name="rviz2",
+        namespace=ns,
         output="log",
         arguments=["-d", LaunchConfiguration("rvizconfig")],
         condition=IfCondition(LaunchConfiguration("launch_rviz")),
@@ -137,23 +157,26 @@ def generate_launch_description():
     joint_state_broadcaster_spawner = launch_ros.actions.Node(
         package="controller_manager",
         executable="spawner",
+        namespace=ns,
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
-            "/controller_manager",
+            "controller_manager",
         ],
     )
 
     robotiq_gripper_controller_spawner = launch_ros.actions.Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["robotiq_gripper_controller", "-c", "/controller_manager"],
+        namespace=ns,
+        arguments=["robotiq_gripper_controller", "-c", "controller_manager"],
     )
 
     robotiq_activation_controller_spawner = launch_ros.actions.Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["robotiq_activation_controller", "-c", "/controller_manager"],
+        namespace=ns,
+        arguments=["robotiq_activation_controller", "-c", "controller_manager"],
     )
 
     nodes = [
