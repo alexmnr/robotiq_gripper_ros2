@@ -26,3 +26,9 @@ ros2 launch robotiq_bringup bringup.launch.py
 ```bash
 ros2 launch robotiq_description bringup.launch.py ns:=gripper use_fake_hardware:=true
 ```
+
+## Controlling the gripper
+You can send commands to the gripper using the ros2 action interface:
+```sh
+ros2 action send_goal /robotiq_gripper_controller/gripper_cmd control_msgs/action/ParallelGripperCommand "{command: {name: ['robotiq_85_left_knuckle_joint'], position: [0.0]}}"
+```
