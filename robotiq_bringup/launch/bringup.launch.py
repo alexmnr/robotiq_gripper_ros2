@@ -16,7 +16,7 @@ def generate_launch_description():
     ).find("robotiq_description")
     bringup_pkg_share = launch_ros.substitutions.FindPackageShare(
         package="robotiq_bringup"
-    ).find("robotiq_description")
+    ).find("robotiq_bringup")
     default_model_path = os.path.join(
         description_pkg_share, "urdf", "robotiq_2f_85_gripper.urdf.xacro"
     )
