@@ -11,7 +11,7 @@ def launch_setup(context):
     log_level = context.launch_configurations["log_level"]
     ns = context.launch_configurations["ns"]
     model = context.launch_configurations["model"]
-    use_fake_hardware = str(context.launch_configurations["use_fake_hardware"]).lower()
+    use_mock_hardware = str(context.launch_configurations["use_mock_hardware"]).lower()
     com_port = context.launch_configurations["com_port"]
 
     # Print parameters
@@ -23,8 +23,8 @@ def launch_setup(context):
     else:
         print(" ns:                  " + "/" + ns)
     print(" model:               " + model)
-    print(" use_fake_hardware:   " + use_fake_hardware)
-    if use_fake_hardware == "false":
+    print(" use_mock_hardware:   " + use_mock_hardware)
+    if use_mock_hardware == "false":
         print(" com_port:            " + com_port)
     print("")
 
@@ -39,8 +39,8 @@ def launch_setup(context):
             " ",
             model,
             " ",
-            "use_fake_hardware:=",
-            use_fake_hardware,
+            "use_mock_hardware:=",
+            use_mock_hardware,
             " ",
             "com_port:=",
             com_port,
@@ -174,9 +174,9 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "use_fake_hardware",
+            "use_mock_hardware",
             default_value="false",
-            description="Start robot with fake hardware (mock components)",
+            description="Start robot with mock hardware (mock components)",
         )
     )
     declared_arguments.append(
